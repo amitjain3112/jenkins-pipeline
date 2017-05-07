@@ -27,7 +27,7 @@ pipeline {
 			}
 		}
 
-		stage ('Build Python SourceCode') {
+		stage ('Initialize PyBuilder for Building Python Source code') {
 			steps {
 				echo "Building Python Project using PyBuilder"
 
@@ -58,7 +58,41 @@ pipeline {
 				sh "cp ${env.$WORKSPACE}/build.py ${OUTPUT_DIR}/${VENV_DIR}/" 
 			}
 
+			steps{
+				echo "From Pybuilder install dependencies"
+				sh 'pyb install_dependencies'
+			}
+
 		}
+
+		stage ('Run Unit Test'){
+		
+			echo "Code for running UnitTests on Source Code"
+			echo "If UnitTests are successful,build the source code"
+
+		}
+
+		stage ('BUILD Python Source code'{
+			
+			echo "Now Build the source code if UnitTests are successful"
+			echo "After successful build packaged build will be moved to Green folder"
+
+		}
+
+		stage ('Move stable build to Green'){
+		
+			echo "Code for Copying stable Package to Green folder"
+			echo "Packaged code will be deployed to Production servers from Green folder only"
+
+		}
+
+		stage ('Deploy Stable Build'){
+
+			echo "Code for deploying stable build to production hosts using Ansible"
+			echo "Successful package from Green folder only will be deployed to Production server"
+	
+		}
+
 		stage ('Promote Development branch to Master branch') {
 
 			when {
