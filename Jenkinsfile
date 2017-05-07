@@ -3,6 +3,8 @@ pipeline {
 	
 	environment {
 		MAJOR_VERSION = 1
+		OUTPUT_DIR = '/mnt1/jenkins-output'
+		VENV_DIR = "venv${env.BUILD_NUMBER}"
 	}
 	
 	stages {
@@ -19,11 +21,44 @@ pipeline {
 
 				script {
 					echo "My BUILD Number: ${env.BUILD_NUMBER}"
-			
+					sh "cd ${env.WORKSPACE}"
+					sh 'git log --oneline'
 				}
 			}
 		}
 
+		stage ('Build Python SourceCode') {
+			steps {
+				echo "Building Python Project using PyBuilder"
+
+				echo "Create virtualenv to install Build env separate from default Python" 
+
+				sh 'mkdir ${OUTPUT_DIR}/${VENV_DIR}"
+				sh "virtualenv ${OUTPUT_DIR}/${VENV_DIR}/venv" 
+				sh "source ${OUTPUT_DIR}/${VENV_DIR}/venv/bin/activate"
+
+				echo "Now install pybuilder"
+
+				sh 'pip install pybuilder'
+			}
+
+			steps {
+				echo "Add source files into src/main/scripts folder"
+
+				sh "cp ${env.$WORKSPACE}/csv_split.py ${OUTPUT_DIR}/${VENV_DIR}/src/main/scripts"
+				sh "cp ${env.$WORKSPACE}/execution_time.py ${OUTPUT_DIR}/${VENV_DIR}/src/main/scripts"
+
+				echo "Add unittest files into src/main/python"
+
+				sh "cp ${env.$WORKSPACE/execution_time_tests.py ${OUTPUT_DIR}/${VENV_DIR}/src/unittest/python/"
+				sh "cp ${env.$WORKSPACE/csv_split_tests.py ${OUTPUT_DIR}/${VENV_DIR}/src/unittest/python/"
+
+				echo "Finally add build.py into virtual env to build"
+
+				sh "cp ${env.$WORKSPACE}/build.py ${OUTPUT_DIR}/${VENV_DIR}/" 
+			}
+
+		}
 		stage ('Promote Development branch to Master branch') {
 
 			when {

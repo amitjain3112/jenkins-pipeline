@@ -1,1 +1,0 @@
-New Development branch for multi-branch pipeline
